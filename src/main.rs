@@ -1,21 +1,18 @@
 use bevy::prelude::*;
 
+mod camera;
+mod player;
+mod view_port;
+
+use camera::CameraPlugin;
+use player::PlayerPlugin;
+use view_port::ViewPortPlugin;
+
 fn main() {
     App::new()
-        .add_plugins(
-            DefaultPlugins
-                .set(ImagePlugin::default_nearest())
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "Slidey".into(),
-                        resolution: (640.0, 480.0).into(),
-                        resizable: false,
-                        ..default()
-                    }),
-                    ..default()
-                })
-                .build(),
-        )
+        .add_plugins(ViewPortPlugin)
+        .add_plugins(CameraPlugin)
+        .add_plugins(PlayerPlugin)
         .run();
 }
 
