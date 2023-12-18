@@ -1,5 +1,10 @@
 use bevy::prelude::*;
 
+use crate::{
+    ascii::{spawn_ascii_sprite, AsciiSheet},
+    view_port::TILE_SIZE,
+};
+
 const PLAYER_SPEED: f32 = 10.0;
 
 #[derive(Component, Debug)]
@@ -14,17 +19,18 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("player.png");
+fn spawn_player(mut commands: Commands, ascii: Res<AsciiSheet>) {
+    let player = spawn_ascii_sprite(
+        &mut commands,
+        &ascii,
+        1,
+        Vec3::new(2.0 * TILE_SIZE, -2.0 * TILE_SIZE, 1.0),
+    );
 
-    commands.spawn((
-        SpriteBundle {
-            texture,
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            ..default()
-        },
-        Player,
-    ));
+    commands
+        .entity(player)
+        .insert(Name::new("Player"))
+        .insert(Player);
 }
 
 fn player_movement_controlls(
