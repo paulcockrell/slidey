@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::view_port::TILE_SIZE;
+pub const TILE_SIZE: f32 = 16.0;
 
 pub struct AsciiPlugin;
 
@@ -18,9 +18,9 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = asset_server.load("ascii.png");
+    let texture_handle = asset_server.load("tilemap_packed.png");
     let texture_atlas =
-        TextureAtlas::from_grid(texture_handle, Vec2::splat(TILE_SIZE), 16, 10, None, None);
+        TextureAtlas::from_grid(texture_handle, Vec2::splat(TILE_SIZE), 12, 11, None, None);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands.insert_resource(AsciiSheet(texture_atlas_handle));

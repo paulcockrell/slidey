@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     ascii::{spawn_ascii_sprite, AsciiSheet},
-    view_port::TILE_SIZE,
+    map::TILE_SIZE,
 };
 
 const PLAYER_SPEED: f32 = 10.0;
@@ -23,7 +23,7 @@ fn spawn_player(mut commands: Commands, ascii: Res<AsciiSheet>) {
     let player = spawn_ascii_sprite(
         &mut commands,
         &ascii,
-        1,
+        86,
         Vec3::new(2.0 * TILE_SIZE, -2.0 * TILE_SIZE, 1.0),
     );
 
