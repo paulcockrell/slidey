@@ -9,7 +9,7 @@ pub struct AsciiSheet(pub Handle<TextureAtlas>);
 
 impl Plugin for AsciiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app.add_systems(PreStartup, setup);
     }
 }
 
