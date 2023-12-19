@@ -6,6 +6,11 @@ mod map;
 mod player;
 mod view_port;
 
+mod prelude {
+    pub const SCREEN_WIDTH: i32 = 12;
+    pub const SCREEN_HEIGHT: i32 = 10;
+}
+
 use ascii::AsciiPlugin;
 use camera::CameraPlugin;
 use map::MapPlugin;
