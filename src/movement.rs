@@ -1,6 +1,10 @@
+use crate::ascii::TILE_SIZE;
 use bevy::prelude::*;
+use bevy::sprite::collide_aabb::collide;
 
-const PLAYER_SPEED: f32 = 10.0;
+use crate::map::TileCollider;
+
+const PLAYER_SPEED: f32 = 25.0;
 
 #[derive(Debug)]
 enum Direction {
@@ -61,13 +65,24 @@ fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>
     }
 }
 
-fn update_position(mut query: Query<(&mut Transform, &Moveable)>, time: Res<Time>) {
-    let Ok((mut transform, moveable)) = query.get_single_mut() else {
+fn update_position(
+    mut moveable_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
+    wall_query: Query<(&Transform, With<TileCollider>)>,
+    time: Res<Time>,
+) {
+    let Ok((mut transform, mut moveable)) = moveable_query.get_single_mut() else {
         return;
     };
 
     if matches!(moveable.direction, Direction::Stopped) {
         return;
+    }
+
+    for wall in wall_query.iter() {
+        if wall_collision_check(transform.translation, wall.0.translation) {
+            moveable.speed = 0.0;
+            moveable.direction = Direction::Stopped;
+        }
     }
 
     let movement_amount = moveable.speed * time.delta_seconds();
@@ -81,12 +96,12 @@ fn update_position(mut query: Query<(&mut Transform, &Moveable)>, time: Res<Time
     }
 }
 
-// fn wall_collision_check(target_player_pos: Vec3, wall_translation: Vec3) -> bool {
-//     let collision = collide(
-//         target_player_pos,
-//         Vec2::splat(TILE_SIZE * 0.9),
-//         wall_translation,
-//         Vec2::splat(TILE_SIZE),
-//     );
-//     collision.is_some()
-// }
+fn wall_collision_check(target_player_pos: Vec3, wall_translation: Vec3) -> bool {
+    let collision = collide(
+        target_player_pos,
+        Vec2::splat(TILE_SIZE * 0.9),
+        wall_translation,
+        Vec2::splat(TILE_SIZE),
+    );
+    collision.is_some()
+}

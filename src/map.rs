@@ -6,7 +6,6 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-pub const TILE_SIZE: f32 = 16.0;
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
 #[derive(Component, Debug)]
