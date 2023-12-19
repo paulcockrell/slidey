@@ -14,6 +14,7 @@ pub enum TileType {
     Floor,
     Potion,
     Player,
+    Teleport,
 }
 
 #[derive(Resource, Debug)]
@@ -34,7 +35,7 @@ pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PreStartup, build_map);
-        app.add_systems(Update, render_map);
+        app.add_systems(Startup, spawn_map);
     }
 }
 
@@ -50,6 +51,7 @@ fn build_map(mut commands: Commands) {
                         '#' => map.tiles[idx] = TileType::Wall,
                         'o' => map.tiles[idx] = TileType::Potion,
                         'p' => map.tiles[idx] = TileType::Player,
+                        't' => map.tiles[idx] = TileType::Teleport,
                         _ => map.tiles[idx] = TileType::Floor,
                     }
                 }
@@ -60,16 +62,17 @@ fn build_map(mut commands: Commands) {
     commands.insert_resource(map);
 }
 
-pub fn render_map(mut commands: Commands, map: Res<Map>, ascii: Res<AsciiSheet>) {
+pub fn spawn_map(mut commands: Commands, map: Res<Map>, ascii: Res<AsciiSheet>) {
     for y in 0..SCREEN_HEIGHT {
         for x in 0..SCREEN_WIDTH {
             let index = map_idx(x, y);
             let tile_type = map.tiles[index];
             let sprite_idx = match tile_type {
-                TileType::Wall => 1,
-                TileType::Floor => 2,
-                TileType::Potion => 3,
-                TileType::Player => 4,
+                TileType::Wall => 40,
+                TileType::Floor => 48,
+                TileType::Potion => 115,
+                TileType::Player => 84,
+                TileType::Teleport => 60,
             };
 
             let sprite = spawn_ascii_sprite(
