@@ -5,7 +5,7 @@ use bevy::sprite::collide_aabb::Collision;
 
 use crate::map::TileCollider;
 
-const PLAYER_SPEED: f32 = 25.0;
+const PLAYER_SPEED: f32 = 85.0;
 
 #[derive(Debug)]
 enum Direction {
@@ -44,6 +44,7 @@ fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>
         return;
     };
 
+    // Only allow new movement when player is stopped
     if !matches!(moveable.direction, Direction::Stopped) {
         return;
     }
@@ -82,29 +83,38 @@ fn update_position(
     for wall in wall_query.iter() {
         if let Some(collision) = collide(
             transform.translation,
-            Vec2::splat(TILE_SIZE),
+            Vec2::splat(TILE_SIZE), // TODO: this has some round issues with the vecs. need to make
+            // it sort them out
             wall.0.translation,
             Vec2::splat(TILE_SIZE),
         ) {
+            println!(
+                "player {}, wall {}",
+                transform.translation, wall.0.translation
+            );
             if matches!(moveable.direction, Direction::Left)
                 && matches!(collision, Collision::Right)
             {
+                println!("Moving left, collided on the right of the wall");
                 moveable.speed = 0.0;
                 moveable.direction = Direction::Stopped;
             };
-            if matches!(moveable.direction, Direction::Left)
-                && matches!(collision, Collision::Right)
+            if matches!(moveable.direction, Direction::Right)
+                && matches!(collision, Collision::Left)
             {
+                println!("Moving right, collided on the left of the wall");
                 moveable.speed = 0.0;
                 moveable.direction = Direction::Stopped;
             };
             if matches!(moveable.direction, Direction::Up) && matches!(collision, Collision::Bottom)
             {
+                println!("Moving up, collided on the bottom of the wall");
                 moveable.speed = 0.0;
                 moveable.direction = Direction::Stopped;
             };
             if matches!(moveable.direction, Direction::Down) && matches!(collision, Collision::Top)
             {
+                println!("Moving down, collided on the top of the wall");
                 moveable.speed = 0.0;
                 moveable.direction = Direction::Stopped;
             };
