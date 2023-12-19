@@ -3,7 +3,7 @@ use bevy::prelude::*;
 mod ascii;
 mod camera;
 mod map;
-mod player;
+mod movement;
 mod view_port;
 
 mod prelude {
@@ -14,7 +14,7 @@ mod prelude {
 use ascii::AsciiPlugin;
 use camera::CameraPlugin;
 use map::MapPlugin;
-use player::PlayerPlugin;
+use movement::MovementPlugin;
 use view_port::ViewPortPlugin;
 
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)
-        .add_plugins(PlayerPlugin)
         .add_plugins(MapPlugin)
+        .add_plugins(MovementPlugin)
         .run();
 }

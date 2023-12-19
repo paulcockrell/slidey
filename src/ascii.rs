@@ -18,6 +18,8 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
+    println!("Load sprite sheet...");
+
     let texture_handle = asset_server.load("tilemap_packed.png");
     let texture_atlas =
         TextureAtlas::from_grid(texture_handle, Vec2::splat(TILE_SIZE), 12, 11, None, None);
