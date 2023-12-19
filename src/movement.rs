@@ -1,6 +1,7 @@
 use crate::ascii::TILE_SIZE;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
+use bevy::sprite::collide_aabb::Collision;
 
 use crate::map::TileCollider;
 
@@ -66,11 +67,11 @@ fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>
 }
 
 fn update_position(
-    mut moveable_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
+    mut player_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
     wall_query: Query<(&Transform, With<TileCollider>)>,
     time: Res<Time>,
 ) {
-    let Ok((mut transform, mut moveable)) = moveable_query.get_single_mut() else {
+    let Ok((mut transform, mut moveable)) = player_query.get_single_mut() else {
         return;
     };
 
@@ -79,9 +80,34 @@ fn update_position(
     }
 
     for wall in wall_query.iter() {
-        if wall_collision_check(transform.translation, wall.0.translation) {
-            moveable.speed = 0.0;
-            moveable.direction = Direction::Stopped;
+        if let Some(collision) = collide(
+            transform.translation,
+            Vec2::splat(TILE_SIZE),
+            wall.0.translation,
+            Vec2::splat(TILE_SIZE),
+        ) {
+            if matches!(moveable.direction, Direction::Left)
+                && matches!(collision, Collision::Right)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+            };
+            if matches!(moveable.direction, Direction::Left)
+                && matches!(collision, Collision::Right)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+            };
+            if matches!(moveable.direction, Direction::Up) && matches!(collision, Collision::Bottom)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+            };
+            if matches!(moveable.direction, Direction::Down) && matches!(collision, Collision::Top)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+            };
         }
     }
 
@@ -94,14 +120,4 @@ fn update_position(
         Direction::Right => transform.translation.x += movement_amount,
         _ => (),
     }
-}
-
-fn wall_collision_check(target_player_pos: Vec3, wall_translation: Vec3) -> bool {
-    let collision = collide(
-        target_player_pos,
-        Vec2::splat(TILE_SIZE * 0.9),
-        wall_translation,
-        Vec2::splat(TILE_SIZE),
-    );
-    collision.is_some()
 }
