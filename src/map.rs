@@ -11,6 +11,9 @@ const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 #[derive(Component, Debug)]
 pub struct TileCollider;
 
+#[derive(Component, Debug)]
+pub struct Collectable;
+
 #[derive(Component, Clone, Copy, Debug)]
 pub enum TileType {
     Wall,
@@ -47,6 +50,7 @@ fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
     let mut map = Map::new(NUM_TILES);
 
     if let Ok(lines) = read_lines("assets/level1.txt") {
+        // Build static
         for (y, line) in lines.enumerate() {
             if let Ok(line) = line {
                 for (x, char) in line.chars().enumerate() {
@@ -80,7 +84,10 @@ fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
                 );
 
                 if matches!(tile_type, TileType::Wall) {
-                    commands.entity(sprite).insert((tile_type, TileCollider));
+                    commands
+                        .entity(sprite)
+                        .insert((tile_type, TileCollider))
+                        .insert(TileType::Wall);
                 } else {
                     commands.entity(sprite).insert(tile_type);
                 }
@@ -133,11 +140,15 @@ fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>) {
                         ),
                     );
 
-                    if matches!(tile_type, TileType::Player) {
-                        commands.entity(sprite).insert((tile_type, Moveable::new()));
-                    } else {
-                        commands.entity(sprite).insert(tile_type);
-                    }
+                    match tile_type {
+                        TileType::Player => {
+                            commands.entity(sprite).insert((tile_type, Moveable::new()))
+                        }
+                        TileType::Potion => {
+                            commands.entity(sprite).insert((tile_type, Collectable))
+                        }
+                        _ => commands.entity(sprite).insert(tile_type),
+                    };
                 }
             }
         }

@@ -1,4 +1,5 @@
 use crate::ascii::TILE_SIZE;
+use crate::map::Collectable;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy::sprite::collide_aabb::Collision;
@@ -35,7 +36,11 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (movement_controlls, update_position).chain());
+        app.add_systems(
+            Update,
+            (movement_controlls, update_position, check_wall).chain(),
+        )
+        .add_systems(Update, check_potion);
     }
 }
 
@@ -67,12 +72,8 @@ fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>
     }
 }
 
-fn update_position(
-    mut player_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
-    wall_query: Query<(&Transform, With<TileCollider>)>,
-    time: Res<Time>,
-) {
-    let Ok((mut transform, mut moveable)) = player_query.get_single_mut() else {
+fn update_position(mut player_query: Query<(&mut Transform, &Moveable)>, time: Res<Time>) {
+    let Ok((mut transform, moveable)) = player_query.get_single_mut() else {
         return;
     };
 
@@ -89,54 +90,90 @@ fn update_position(
         Direction::Right => transform.translation.x += movement_amount,
         _ => (),
     }
+}
 
-    for wall in wall_query.iter() {
-        if let Some(collision) = collide(
-            transform.translation,
+fn check_potion(
+    mut commands: Commands,
+    mut player_query: Query<&mut Transform, (With<Moveable>, Without<Collectable>)>,
+    potion_query: Query<(Entity, &Transform), With<Collectable>>,
+) {
+    let Ok(player_transform) = player_query.get_single_mut() else {
+        return;
+    };
+
+    for (potion_entity, potion_transform) in potion_query.iter() {
+        let hit = collide(
+            player_transform.translation,
             Vec2::splat(TILE_SIZE),
-            wall.0.translation,
+            potion_transform.translation,
+            Vec2::splat(TILE_SIZE),
+        )
+        .is_some();
+
+        if hit {
+            println!("Hit the potion");
+            commands.entity(potion_entity).despawn_recursive();
+        }
+    }
+}
+
+fn check_wall(
+    mut player_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
+    wall_query: Query<&Transform, With<TileCollider>>,
+) {
+    let Ok((mut player_transform, mut player_moveable)) = player_query.get_single_mut() else {
+        return;
+    };
+
+    for wall_transform in wall_query.iter() {
+        if let Some(collision) = collide(
+            player_transform.translation,
+            Vec2::splat(TILE_SIZE),
+            wall_transform.translation,
             Vec2::splat(TILE_SIZE),
         ) {
             // Moving left, collided with right side of wall
-            if matches!(moveable.direction, Direction::Left)
+            if matches!(player_moveable.direction, Direction::Left)
                 && matches!(collision, Collision::Right)
             {
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
+                player_moveable.speed = 0.0;
+                player_moveable.direction = Direction::Stopped;
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
-                transform.translation.x = wall.0.translation.x + TILE_SIZE;
+                player_transform.translation.x = wall_transform.translation.x + TILE_SIZE;
             };
 
             // Moving right, collided with left side of wall
-            if matches!(moveable.direction, Direction::Right)
+            if matches!(player_moveable.direction, Direction::Right)
                 && matches!(collision, Collision::Left)
             {
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
+                player_moveable.speed = 0.0;
+                player_moveable.direction = Direction::Stopped;
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
-                transform.translation.x = wall.0.translation.x - TILE_SIZE;
+                player_transform.translation.x = wall_transform.translation.x - TILE_SIZE;
             };
 
             // Moving up, collided with bottom side of wall
-            if matches!(moveable.direction, Direction::Up) && matches!(collision, Collision::Bottom)
+            if matches!(player_moveable.direction, Direction::Up)
+                && matches!(collision, Collision::Bottom)
             {
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
+                player_moveable.speed = 0.0;
+                player_moveable.direction = Direction::Stopped;
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
-                transform.translation.y = wall.0.translation.y - TILE_SIZE;
+                player_transform.translation.y = wall_transform.translation.y - TILE_SIZE;
             };
 
             // Moving down, collided with top side of wall
-            if matches!(moveable.direction, Direction::Down) && matches!(collision, Collision::Top)
+            if matches!(player_moveable.direction, Direction::Down)
+                && matches!(collision, Collision::Top)
             {
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
+                player_moveable.speed = 0.0;
+                player_moveable.direction = Direction::Stopped;
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
-                transform.translation.y = wall.0.translation.y + TILE_SIZE;
+                player_transform.translation.y = wall_transform.translation.y + TILE_SIZE;
             };
         }
     }
