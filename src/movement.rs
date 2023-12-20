@@ -80,47 +80,6 @@ fn update_position(
         return;
     }
 
-    for wall in wall_query.iter() {
-        if let Some(collision) = collide(
-            transform.translation,
-            Vec2::splat(TILE_SIZE), // TODO: this has some round issues with the vecs. need to make
-            // it sort them out
-            wall.0.translation,
-            Vec2::splat(TILE_SIZE),
-        ) {
-            println!(
-                "player {}, wall {}",
-                transform.translation, wall.0.translation
-            );
-            if matches!(moveable.direction, Direction::Left)
-                && matches!(collision, Collision::Right)
-            {
-                println!("Moving left, collided on the right of the wall");
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
-            };
-            if matches!(moveable.direction, Direction::Right)
-                && matches!(collision, Collision::Left)
-            {
-                println!("Moving right, collided on the left of the wall");
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
-            };
-            if matches!(moveable.direction, Direction::Up) && matches!(collision, Collision::Bottom)
-            {
-                println!("Moving up, collided on the bottom of the wall");
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
-            };
-            if matches!(moveable.direction, Direction::Down) && matches!(collision, Collision::Top)
-            {
-                println!("Moving down, collided on the top of the wall");
-                moveable.speed = 0.0;
-                moveable.direction = Direction::Stopped;
-            };
-        }
-    }
-
     let movement_amount = moveable.speed * time.delta_seconds();
 
     match moveable.direction {
@@ -129,5 +88,56 @@ fn update_position(
         Direction::Left => transform.translation.x -= movement_amount,
         Direction::Right => transform.translation.x += movement_amount,
         _ => (),
+    }
+
+    for wall in wall_query.iter() {
+        if let Some(collision) = collide(
+            transform.translation,
+            Vec2::splat(TILE_SIZE),
+            wall.0.translation,
+            Vec2::splat(TILE_SIZE),
+        ) {
+            // Moving left, collided with right side of wall
+            if matches!(moveable.direction, Direction::Left)
+                && matches!(collision, Collision::Right)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+                // Ensure we don't move in to the wall, as the collision may occur
+                // after we have moved 'into' it (as translation is a vec3 of f32s)
+                transform.translation.x = wall.0.translation.x + TILE_SIZE;
+            };
+
+            // Moving right, collided with left side of wall
+            if matches!(moveable.direction, Direction::Right)
+                && matches!(collision, Collision::Left)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+                // Ensure we don't move in to the wall, as the collision may occur
+                // after we have moved 'into' it (as translation is a vec3 of f32s)
+                transform.translation.x = wall.0.translation.x - TILE_SIZE;
+            };
+
+            // Moving up, collided with bottom side of wall
+            if matches!(moveable.direction, Direction::Up) && matches!(collision, Collision::Bottom)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+                // Ensure we don't move in to the wall, as the collision may occur
+                // after we have moved 'into' it (as translation is a vec3 of f32s)
+                transform.translation.y = wall.0.translation.y - TILE_SIZE;
+            };
+
+            // Moving down, collided with top side of wall
+            if matches!(moveable.direction, Direction::Down) && matches!(collision, Collision::Top)
+            {
+                moveable.speed = 0.0;
+                moveable.direction = Direction::Stopped;
+                // Ensure we don't move in to the wall, as the collision may occur
+                // after we have moved 'into' it (as translation is a vec3 of f32s)
+                transform.translation.y = wall.0.translation.y + TILE_SIZE;
+            };
+        }
     }
 }
