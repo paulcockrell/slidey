@@ -8,7 +8,7 @@ mod view_port;
 
 mod prelude {
     pub const SCREEN_WIDTH: i32 = 12;
-    pub const SCREEN_HEIGHT: i32 = 10;
+    pub const SCREEN_HEIGHT: i32 = 9;
 }
 
 use ascii::AsciiPlugin;
