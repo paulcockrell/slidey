@@ -1,5 +1,6 @@
 use crate::ascii::TILE_SIZE;
 use crate::map::Collectable;
+use crate::map::Teleporter;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy::sprite::collide_aabb::Collision;
@@ -44,8 +45,16 @@ impl Plugin for MovementPlugin {
     }
 }
 
-fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>>) {
-    let Ok(mut moveable) = query.get_single_mut() else {
+fn movement_controlls(
+    mut moveable_query: Query<(&mut Moveable, &mut Transform), Without<Teleporter>>,
+    mut teleporter_query: Query<&mut Transform, With<Teleporter>>,
+    input: Res<Input<KeyCode>>,
+) {
+    let Ok((mut moveable, mut moveable_transform)) = moveable_query.get_single_mut() else {
+        return;
+    };
+
+    let Ok(mut teleporter_transform) = teleporter_query.get_single_mut() else {
         return;
     };
 
@@ -54,21 +63,30 @@ fn movement_controlls(mut query: Query<&mut Moveable>, input: Res<Input<KeyCode>
         return;
     }
 
-    if input.pressed(KeyCode::Up) {
+    if input.just_released(KeyCode::Up) {
         moveable.direction = Direction::Up;
         moveable.speed = PLAYER_SPEED;
     }
-    if input.pressed(KeyCode::Down) {
+    if input.just_released(KeyCode::Down) {
         moveable.direction = Direction::Down;
         moveable.speed = PLAYER_SPEED;
     }
-    if input.pressed(KeyCode::Left) {
+    if input.just_released(KeyCode::Left) {
         moveable.direction = Direction::Left;
         moveable.speed = PLAYER_SPEED;
     }
-    if input.pressed(KeyCode::Right) {
+    if input.just_released(KeyCode::Right) {
         moveable.direction = Direction::Right;
         moveable.speed = PLAYER_SPEED;
+    }
+    if input.just_released(KeyCode::Space) {
+        moveable.direction = Direction::Stopped;
+        moveable.speed = 0.0;
+        let teleporter_translation = teleporter_transform.translation;
+        let moveable_translation = moveable_transform.translation;
+
+        moveable_transform.translation = teleporter_translation;
+        teleporter_transform.translation = moveable_translation;
     }
 }
 
@@ -111,7 +129,6 @@ fn check_potion(
         .is_some();
 
         if hit {
-            println!("Hit the potion");
             commands.entity(potion_entity).despawn_recursive();
         }
     }

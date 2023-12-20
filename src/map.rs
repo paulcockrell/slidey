@@ -14,6 +14,9 @@ pub struct TileCollider;
 #[derive(Component, Debug)]
 pub struct Collectable;
 
+#[derive(Component, Debug)]
+pub struct Teleporter;
+
 #[derive(Component, Clone, Copy, Debug)]
 pub enum TileType {
     Wall,
@@ -146,6 +149,11 @@ fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>) {
                         }
                         TileType::Potion => {
                             commands.entity(sprite).insert((tile_type, Collectable))
+                        }
+                        TileType::Teleport => {
+                            commands
+                                .entity(sprite)
+                                .insert((tile_type, Teleporter, TileCollider))
                         }
                         _ => commands.entity(sprite).insert(tile_type),
                     };
