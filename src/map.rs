@@ -47,7 +47,7 @@ impl Plugin for MapPlugin {
 }
 
 // Builds the non-interactive map, i.e floor and walls
-fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
+pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
     println!("Spawning map...");
 
     let mut map = Map::new(NUM_TILES);
@@ -102,7 +102,7 @@ fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
 }
 
 // Builds the assets, i.e Player and Potions
-fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>) {
+pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>) {
     println!("Spawning assets...");
 
     let mut map = Map::new(NUM_TILES);
