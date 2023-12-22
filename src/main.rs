@@ -27,7 +27,7 @@ enum GameState {
 }
 
 #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
-enum SoundLevel {
+enum Music {
     Off,
     On,
 }
@@ -35,6 +35,7 @@ enum SoundLevel {
 fn main() {
     App::new()
         .add_state::<GameState>()
+        .insert_resource(Music::On)
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)
@@ -116,7 +117,7 @@ mod splash {
 mod menu {
     use bevy::{app::AppExit, prelude::*};
 
-    use crate::SoundLevel;
+    use crate::Music;
 
     use super::{despawn_screen, GameState, TEXT_COLOR};
 
@@ -133,10 +134,14 @@ mod menu {
                     OnExit(MenuState::Settings),
                     despawn_screen::<OnSettingsMenuScreen>,
                 )
-                .add_systems(OnEnter(MenuState::SettingsSound), sound_settings_menu_setup)
+                .add_systems(OnEnter(MenuState::SettingsMusic), sound_settings_menu_setup)
                 .add_systems(
-                    OnExit(MenuState::SettingsSound),
+                    OnExit(MenuState::SettingsMusic),
                     despawn_screen::<OnSoundSettingsMenuScreen>,
+                )
+                .add_systems(
+                    Update,
+                    (setting_button::<Music>.run_if(in_state(MenuState::SettingsMusic)),),
                 )
                 .add_systems(
                     Update,
@@ -149,7 +154,7 @@ mod menu {
     enum MenuState {
         Main,
         Settings,
-        SettingsSound,
+        SettingsMusic,
         #[default]
         Disabled,
     }
@@ -175,7 +180,7 @@ mod menu {
     enum MenuButtonAction {
         Play,
         Settings,
-        SettingsSound,
+        SettingsMusic,
         BackToMainMenu,
         BackToSettings,
         Quit,
@@ -274,7 +279,7 @@ mod menu {
                         // Display the game name
                         parent.spawn(
                             TextBundle::from_section(
-                                "Bevy Game Menu UI",
+                                "Wizards Conundrum",
                                 TextStyle {
                                     font_size: 80.0,
                                     color: TEXT_COLOR,
@@ -398,7 +403,7 @@ mod menu {
                     })
                     .with_children(|parent| {
                         for (action, text) in [
-                            (MenuButtonAction::SettingsSound, "Sound"),
+                            (MenuButtonAction::SettingsMusic, "Sound"),
                             (MenuButtonAction::BackToMainMenu, "Back"),
                         ] {
                             parent
@@ -421,7 +426,7 @@ mod menu {
             });
     }
 
-    fn sound_settings_menu_setup(mut commands: Commands, sound_level: Res<SoundLevel>) {
+    fn sound_settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
         let button_style = Style {
             width: Val::Px(200.0),
             height: Val::Px(65.0),
@@ -476,11 +481,11 @@ mod menu {
                             .with_children(|parent| {
                                 // Display a label for the current setting
                                 parent.spawn(TextBundle::from_section(
-                                    "Display Quality",
+                                    "Music",
                                     button_text_style.clone(),
                                 ));
                                 // Display a button for each possible value
-                                for sound_level_setting in [SoundLevel::Off, SoundLevel::On] {
+                                for music_setting in [Music::Off, Music::On] {
                                     let mut entity = parent.spawn((
                                         ButtonBundle {
                                             style: Style {
@@ -491,15 +496,15 @@ mod menu {
                                             background_color: NORMAL_BUTTON.into(),
                                             ..default()
                                         },
-                                        sound_level_setting,
+                                        music_setting,
                                     ));
                                     entity.with_children(|parent| {
                                         parent.spawn(TextBundle::from_section(
-                                            format!("{sound_level_setting:?}"),
+                                            format!("{music_setting:?}"),
                                             button_text_style.clone(),
                                         ));
                                     });
-                                    if *sound_level == sound_level_setting {
+                                    if *sound_level == music_setting {
                                         entity.insert(SelectedOption);
                                     }
                                 }
@@ -539,8 +544,8 @@ mod menu {
                         menu_state.set(MenuState::Disabled);
                     }
                     MenuButtonAction::Settings => menu_state.set(MenuState::Settings),
-                    MenuButtonAction::SettingsSound => {
-                        menu_state.set(MenuState::SettingsSound);
+                    MenuButtonAction::SettingsMusic => {
+                        menu_state.set(MenuState::SettingsMusic);
                     }
                     MenuButtonAction::BackToMainMenu => menu_state.set(MenuState::Main),
                     MenuButtonAction::BackToSettings => {
