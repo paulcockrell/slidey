@@ -132,6 +132,11 @@ fn check_potion(
             commands.entity(potion_entity).despawn_recursive();
         }
     }
+
+    if potion_query.is_empty() {
+        println!("Level complete!");
+        // TODO: Do some thing here
+    }
 }
 
 fn check_wall(
