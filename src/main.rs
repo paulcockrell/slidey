@@ -30,7 +30,8 @@ enum GameState {
     #[default]
     Splash,
     Menu,
-    Game,
+    GameSetup,
+    GamePlay,
 }
 
 #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
@@ -42,7 +43,27 @@ enum Music {
 #[derive(Resource, Default, Debug, Component, PartialEq, Eq, Clone, Copy)]
 enum Level {
     #[default]
+    Zero,
     One,
+    Two,
+}
+
+impl Level {
+    pub fn to_number(self) -> u8 {
+        match self {
+            Level::Zero => 0,
+            Level::One => 1,
+            Level::Two => 2,
+        }
+    }
+
+    pub fn next(self) -> Self {
+        match self {
+            Level::Zero => Level::One,
+            Level::One => Level::Two,
+            Level::Two => Level::Two,
+        }
+    }
 }
 
 fn main() {

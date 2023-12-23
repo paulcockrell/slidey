@@ -13,6 +13,7 @@ impl Plugin for MenuPlugin {
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenuScreen>)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
+            // .add_systems(OnExit(GameState::GamePlay), despawn_screen::<OnGameScreen>)
             .add_systems(
                 OnExit(MenuState::Settings),
                 despawn_screen::<OnSettingsMenuScreen>,
@@ -34,7 +35,7 @@ impl Plugin for MenuPlugin {
 }
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
-enum MenuState {
+pub enum MenuState {
     Main,
     Settings,
     Credits,
@@ -53,6 +54,9 @@ struct OnCreditsScreen;
 
 #[derive(Component)]
 struct OnSoundSettingsMenuScreen;
+
+#[derive(Component)]
+struct OnGameScreen;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -111,7 +115,7 @@ fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
     menu_state.set(MenuState::Main);
 }
 
-fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn main_menu_setup(mut commands: Commands) {
     // Common style for all buttons
     let button_style = Style {
         width: Val::Px(250.0),
@@ -120,13 +124,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         padding: UiRect::all(Val::Px(10.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
-        ..default()
-    };
-
-    let button_icon_style = Style {
-        width: Val::Px(30.0),
-        position_type: PositionType::Absolute,
-        left: Val::Px(10.0),
         ..default()
     };
 
@@ -199,12 +196,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                                 action,
                             ))
                             .with_children(|parent| {
-                                let icon = asset_server.load("textures/Game Icons/right.png");
-                                parent.spawn(ImageBundle {
-                                    style: button_icon_style.clone(),
-                                    image: UiImage::new(icon),
-                                    ..default()
-                                });
                                 parent.spawn(TextBundle::from_section(
                                     text,
                                     button_text_style.clone(),
@@ -434,7 +425,7 @@ fn menu_action(
             match menu_button_action {
                 MenuButtonAction::Quit => app_exit_events.send(AppExit),
                 MenuButtonAction::Play => {
-                    game_state.set(GameState::Game);
+                    game_state.set(GameState::GameSetup);
                     menu_state.set(MenuState::Disabled);
                 }
                 MenuButtonAction::Credits => menu_state.set(MenuState::Credits),

@@ -1,13 +1,15 @@
 use crate::ascii::TILE_SIZE;
 use crate::map::Collectable;
 use crate::map::Teleporter;
+use crate::GameState;
+use crate::Level;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy::sprite::collide_aabb::Collision;
 
 use crate::map::TileCollider;
 
-const PLAYER_SPEED: f32 = 85.0;
+const PLAYER_SPEED: f32 = 100.0;
 
 #[derive(Debug)]
 enum Direction {
@@ -39,9 +41,15 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (movement_controlls, update_position, check_wall).chain(),
-        )
-        .add_systems(Update, check_potion);
+            (
+                movement_controlls,
+                update_position,
+                check_wall,
+                check_potion,
+            )
+                .chain()
+                .run_if(in_state(GameState::GamePlay)),
+        );
     }
 }
 
@@ -113,7 +121,9 @@ fn update_position(mut player_query: Query<(&mut Transform, &Moveable)>, time: R
 fn check_potion(
     mut commands: Commands,
     mut player_query: Query<&mut Transform, (With<Moveable>, Without<Collectable>)>,
+    mut game_state: ResMut<NextState<GameState>>,
     potion_query: Query<(Entity, &Transform), With<Collectable>>,
+    level: ResMut<Level>,
 ) {
     let Ok(player_transform) = player_query.get_single_mut() else {
         return;
@@ -134,8 +144,8 @@ fn check_potion(
     }
 
     if potion_query.is_empty() {
-        println!("Level complete!");
-        // TODO: Do some thing here
+        println!("Level {:?} complete!", level.to_number());
+        game_state.set(GameState::GameSetup);
     }
 }
 

@@ -1,6 +1,6 @@
-use crate::ascii::*;
 use crate::movement::Moveable;
 use crate::prelude::*;
+use crate::{ascii::*, Level};
 use bevy::prelude::*;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -30,6 +30,9 @@ pub struct Map {
     tiles: Vec<TileType>,
 }
 
+#[derive(Component, Debug)]
+pub struct TileMap;
+
 impl Map {
     pub fn new(num_tiles: usize) -> Self {
         Self {
@@ -38,21 +41,15 @@ impl Map {
     }
 }
 
-pub struct MapPlugin;
-
-impl Plugin for MapPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (spawn_map, spawn_assets));
-    }
-}
-
 // Builds the non-interactive map, i.e floor and walls
-pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
-    println!("Spawning map...");
+pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
+    println!("Spawning map for level {}", level.to_number());
 
     let mut map = Map::new(NUM_TILES);
+    let mut tiles = Vec::new();
+    let level_path = format!("assets/level{}.txt", level.to_number());
 
-    if let Ok(lines) = read_lines("assets/level1.txt") {
+    if let Ok(lines) = read_lines(level_path) {
         // Build static
         for (y, line) in lines.enumerate() {
             if let Ok(line) = line {
@@ -94,20 +91,30 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>) {
                 } else {
                     commands.entity(sprite).insert(tile_type);
                 }
+
+                tiles.push(sprite);
             }
         }
+
+        commands
+            .spawn(TileMap)
+            .insert(Name::new("Map"))
+            .insert(Transform::default())
+            .insert(GlobalTransform::default())
+            .push_children(&tiles);
     }
 
     println!("Spawn map done");
 }
 
 // Builds the assets, i.e Player and Potions
-pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>) {
-    println!("Spawning assets...");
+pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
+    println!("Spawning assets for level {:?}", level.to_number());
 
     let mut map = Map::new(NUM_TILES);
+    let level_path = format!("assets/level{}.txt", level.to_number());
 
-    if let Ok(lines) = read_lines("assets/level1.txt") {
+    if let Ok(lines) = read_lines(level_path) {
         for (y, line) in lines.enumerate() {
             if let Ok(line) = line {
                 for (x, char) in line.chars().enumerate() {
