@@ -17,11 +17,11 @@ impl Plugin for MenuPlugin {
                 OnExit(MenuState::Settings),
                 despawn_screen::<OnSettingsMenuScreen>,
             )
-            // .add_systems(OnEnter(MenuState::Credits), credits_screen_setup)
-            // .add_systems(
-            //     OnExit(MenuState::Credits),
-            //     despawn_screen::<OnCreditsScreen>,
-            // )
+            .add_systems(OnEnter(MenuState::Credits), credits_screen_setup)
+            .add_systems(
+                OnExit(MenuState::Credits),
+                despawn_screen::<OnCreditsScreen>,
+            )
             .add_systems(
                 Update,
                 (setting_button::<Music>.run_if(in_state(MenuState::Settings)),),
@@ -38,7 +38,6 @@ enum MenuState {
     Main,
     Settings,
     Credits,
-    SettingsMusic,
     #[default]
     Disabled,
 }
@@ -48,6 +47,9 @@ struct OnMainMenuScreen;
 
 #[derive(Component)]
 struct OnSettingsMenuScreen;
+
+#[derive(Component)]
+struct OnCreditsScreen;
 
 #[derive(Component)]
 struct OnSoundSettingsMenuScreen;
@@ -65,9 +67,7 @@ enum MenuButtonAction {
     Play,
     Settings,
     Credits,
-    // SettingsMusic,
     BackToMainMenu,
-    // BackToSettings,
     Quit,
 }
 
@@ -116,7 +116,8 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let button_style = Style {
         width: Val::Px(250.0),
         height: Val::Px(65.0),
-        margin: UiRect::all(Val::Px(20.0)),
+        margin: UiRect::all(Val::Px(10.0)),
+        padding: UiRect::all(Val::Px(10.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
         ..default()
@@ -130,7 +131,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     };
 
     let button_text_style = TextStyle {
-        font_size: 40.0,
+        font_size: 20.0,
         color: TEXT_COLOR,
         ..default()
     };
@@ -139,8 +140,8 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn((
             NodeBundle {
                 style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
+                    width: Val::Vw(100.0),
+                    height: Val::Vh(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..default()
@@ -157,7 +158,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: Color::DARK_GREEN.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -214,71 +215,110 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-// fn settings_menu_setup(mut commands: Commands) {
-//     let button_style = Style {
-//         width: Val::Px(200.0),
-//         height: Val::Px(65.0),
-//         margin: UiRect::all(Val::Px(20.0)),
-//         justify_content: JustifyContent::Center,
-//         align_items: AlignItems::Center,
-//         ..default()
-//     };
+fn credits_screen_setup(mut commands: Commands) {
+    let button_style = Style {
+        width: Val::Px(200.0),
+        height: Val::Px(65.0),
+        margin: UiRect::all(Val::Px(20.0)),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        ..default()
+    };
 
-//     let button_text_style = TextStyle {
-//         font_size: 40.0,
-//         color: TEXT_COLOR,
-//         ..default()
-//     };
+    let button_text_style = TextStyle {
+        font_size: 40.0,
+        color: TEXT_COLOR,
+        ..default()
+    };
 
-//     commands
-//         .spawn((
-//             NodeBundle {
-//                 style: Style {
-//                     width: Val::Percent(100.0),
-//                     height: Val::Percent(100.0),
-//                     align_items: AlignItems::Center,
-//                     justify_content: JustifyContent::Center,
-//                     ..default()
-//                 },
-//                 ..default()
-//             },
-//             OnSettingsMenuScreen,
-//         ))
-//         .with_children(|parent| {
-//             parent
-//                 .spawn(NodeBundle {
-//                     style: Style {
-//                         flex_direction: FlexDirection::Column,
-//                         align_items: AlignItems::Center,
-//                         ..default()
-//                     },
-//                     background_color: Color::CRIMSON.into(),
-//                     ..default()
-//                 })
-//                 .with_children(|parent| {
-//                     for (action, text) in [
-//                         (MenuButtonAction::SettingsMusic, "Sound"),
-//                         (MenuButtonAction::BackToMainMenu, "Back"),
-//                     ] {
-//                         parent
-//                             .spawn((
-//                                 ButtonBundle {
-//                                     style: button_style.clone(),
-//                                     background_color: NORMAL_BUTTON.into(),
-//                                     ..default()
-//                                 },
-//                                 action,
-//                             ))
-//                             .with_children(|parent| {
-//                                 parent.spawn(TextBundle::from_section(
-//                                     text,
-//                                     button_text_style.clone(),
-//                                 ));
-//                             });
-//                     }
-//                 });
-//         });
-// }
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                ..default()
+            },
+            OnCreditsScreen,
+        ))
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        width: Val::Percent(100.0),
+                        ..default()
+                    },
+                    background_color: Color::CRIMSON.into(),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Credits",
+                            TextStyle {
+                                font_size: 40.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Center),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Programming: Bit Slayer",
+                            TextStyle {
+                                font_size: 20.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Left),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Graphics: Tiny Dungeon (1.0) Created/distributed by Kenney (www.kenney.nl)",
+                            TextStyle {
+                                font_size: 20.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Left),
+                    );
+                    // Display the back button to return to the main menu screen
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: button_style,
+                                background_color: NORMAL_BUTTON.into(),
+                                ..default()
+                            },
+                            MenuButtonAction::BackToMainMenu,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section("Back", button_text_style));
+                        });
+                });
+        });
+}
 
 fn settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
     let button_style = Style {

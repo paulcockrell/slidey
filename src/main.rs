@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod ascii;
 mod camera;
@@ -42,7 +43,6 @@ enum Music {
 enum Level {
     #[default]
     One,
-    Two,
 }
 
 fn main() {
@@ -54,8 +54,8 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)
         .add_plugins((SplashPlugin, MenuPlugin, GamePlugin))
-        // .add_plugins(MapPlugin)
         .add_plugins(MovementPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
 
