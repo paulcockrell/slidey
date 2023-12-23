@@ -60,6 +60,11 @@ impl Level {
             Level::Three => 3,
             Level::Four => 4,
             Level::Five => 5,
+            Level::Six => 6,
+            Level::Seven => 7,
+            Level::Eight => 8,
+            Level::Nine => 9,
+            Level::Ten => 10,
         }
     }
 
@@ -70,7 +75,12 @@ impl Level {
             Level::Two => Level::Three,
             Level::Three => Level::Four,
             Level::Four => Level::Five,
-            Level::Five => Level::Zero,
+            Level::Five => Level::Six,
+            Level::Six => Level::Seven,
+            Level::Seven => Level::Eight,
+            Level::Eight => Level::Nine,
+            Level::Nine => Level::Ten,
+            Level::Ten => Level::Zero,
         }
     }
 }
