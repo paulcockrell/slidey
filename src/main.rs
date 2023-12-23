@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+// use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod ascii;
 mod camera;
@@ -46,6 +46,9 @@ enum Level {
     Zero,
     One,
     Two,
+    Three,
+    Four,
+    Five,
 }
 
 impl Level {
@@ -54,6 +57,9 @@ impl Level {
             Level::Zero => 0,
             Level::One => 1,
             Level::Two => 2,
+            Level::Three => 3,
+            Level::Four => 4,
+            Level::Five => 5,
         }
     }
 
@@ -61,7 +67,10 @@ impl Level {
         match self {
             Level::Zero => Level::One,
             Level::One => Level::Two,
-            Level::Two => Level::Two,
+            Level::Two => Level::Three,
+            Level::Three => Level::Four,
+            Level::Four => Level::Five,
+            Level::Five => Level::Zero,
         }
     }
 }
@@ -76,14 +85,16 @@ fn main() {
         .add_plugins(AsciiPlugin)
         .add_plugins((SplashPlugin, MenuPlugin, GamePlugin))
         .add_plugins(MovementPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
+        // .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entites with that
 // component
-fn despawn_screen<T: Component>(to_despan: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despan {
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    println!("Despawning screen {:?}", to_despawn);
+
+    for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
 }

@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    map::{spawn_assets, spawn_map},
-    menu::MenuState,
+    map::{spawn_assets, spawn_map, AssetMap, TileMap},
     Level,
 };
 
@@ -23,7 +22,8 @@ impl Plugin for GamePlugin {
             (spawn_map, spawn_assets, game_setup_complete).chain(),
         )
         // .add_systems(Update, game.run_if(in_state(GameState::GamePlay)))
-        .add_systems(OnExit(GameState::GamePlay), despawn_screen::<OnGameScreen>)
+        .add_systems(OnExit(GameState::GamePlay), despawn_screen::<TileMap>)
+        .add_systems(OnExit(GameState::GamePlay), despawn_screen::<AssetMap>)
         .add_systems(OnExit(GameState::GamePlay), game_setup);
     }
 }

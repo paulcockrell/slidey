@@ -32,6 +32,8 @@ pub struct Map {
 
 #[derive(Component, Debug)]
 pub struct TileMap;
+#[derive(Component, Debug)]
+pub struct AssetMap;
 
 impl Map {
     pub fn new(num_tiles: usize) -> Self {
@@ -98,7 +100,7 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
 
         commands
             .spawn(TileMap)
-            .insert(Name::new("Map"))
+            .insert(Name::new("TileMap"))
             .insert(Transform::default())
             .insert(GlobalTransform::default())
             .push_children(&tiles);
@@ -113,6 +115,7 @@ pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<L
 
     let mut map = Map::new(NUM_TILES);
     let level_path = format!("assets/level{}.txt", level.to_number());
+    let mut sprites = Vec::new();
 
     if let Ok(lines) = read_lines(level_path) {
         for (y, line) in lines.enumerate() {
@@ -164,9 +167,17 @@ pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<L
                         }
                         _ => commands.entity(sprite).insert(tile_type),
                     };
+
+                    sprites.push(sprite);
                 }
             }
         }
+        commands
+            .spawn(AssetMap)
+            .insert(Name::new("AssetMap"))
+            .insert(Transform::default())
+            .insert(GlobalTransform::default())
+            .push_children(&sprites);
     }
 
     println!("Spawn assets done");
