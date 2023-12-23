@@ -38,10 +38,18 @@ enum Music {
     On,
 }
 
+#[derive(Resource, Default, Debug, Component, PartialEq, Eq, Clone, Copy)]
+enum Level {
+    #[default]
+    One,
+    Two,
+}
+
 fn main() {
     App::new()
         .add_state::<GameState>()
         .insert_resource(Music::On)
+        .insert_resource(Level::One)
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)

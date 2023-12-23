@@ -17,14 +17,14 @@ impl Plugin for MenuPlugin {
                 OnExit(MenuState::Settings),
                 despawn_screen::<OnSettingsMenuScreen>,
             )
-            .add_systems(OnEnter(MenuState::SettingsMusic), sound_settings_menu_setup)
-            .add_systems(
-                OnExit(MenuState::SettingsMusic),
-                despawn_screen::<OnSoundSettingsMenuScreen>,
-            )
+            // .add_systems(OnEnter(MenuState::Credits), credits_screen_setup)
+            // .add_systems(
+            //     OnExit(MenuState::Credits),
+            //     despawn_screen::<OnCreditsScreen>,
+            // )
             .add_systems(
                 Update,
-                (setting_button::<Music>.run_if(in_state(MenuState::SettingsMusic)),),
+                (setting_button::<Music>.run_if(in_state(MenuState::Settings)),),
             )
             .add_systems(
                 Update,
@@ -37,6 +37,7 @@ impl Plugin for MenuPlugin {
 enum MenuState {
     Main,
     Settings,
+    Credits,
     SettingsMusic,
     #[default]
     Disabled,
@@ -63,9 +64,10 @@ struct SelectedOption;
 enum MenuButtonAction {
     Play,
     Settings,
-    SettingsMusic,
+    Credits,
+    // SettingsMusic,
     BackToMainMenu,
-    BackToSettings,
+    // BackToSettings,
     Quit,
 }
 
@@ -175,75 +177,110 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         }),
                     );
 
-                    // Display three buttons for each action available from the main menu:
+                    // Display four buttons for each action available from the main menu:
                     // - new game
                     // - settings
+                    // - credits
                     // - quit
-                    parent
-                        .spawn((
-                            ButtonBundle {
-                                style: button_style.clone(),
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
-                            MenuButtonAction::Play,
-                        ))
-                        .with_children(|parent| {
-                            let icon = asset_server.load("textures/Game Icons/right.png");
-                            parent.spawn(ImageBundle {
-                                style: button_icon_style.clone(),
-                                image: UiImage::new(icon),
-                                ..default()
+                    for (action, text) in [
+                        (MenuButtonAction::Play, "New Game"),
+                        (MenuButtonAction::Settings, "Settings"),
+                        (MenuButtonAction::Credits, "Credits"),
+                        (MenuButtonAction::Quit, "Quit"),
+                    ] {
+                        parent
+                            .spawn((
+                                ButtonBundle {
+                                    style: button_style.clone(),
+                                    background_color: NORMAL_BUTTON.into(),
+                                    ..default()
+                                },
+                                action,
+                            ))
+                            .with_children(|parent| {
+                                let icon = asset_server.load("textures/Game Icons/right.png");
+                                parent.spawn(ImageBundle {
+                                    style: button_icon_style.clone(),
+                                    image: UiImage::new(icon),
+                                    ..default()
+                                });
+                                parent.spawn(TextBundle::from_section(
+                                    text,
+                                    button_text_style.clone(),
+                                ));
                             });
-                            parent.spawn(TextBundle::from_section(
-                                "New Game",
-                                button_text_style.clone(),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            ButtonBundle {
-                                style: button_style.clone(),
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
-                            MenuButtonAction::Settings,
-                        ))
-                        .with_children(|parent| {
-                            let icon = asset_server.load("textures/Game Icons/wrench.png");
-                            parent.spawn(ImageBundle {
-                                style: button_icon_style.clone(),
-                                image: UiImage::new(icon),
-                                ..default()
-                            });
-                            parent.spawn(TextBundle::from_section(
-                                "Settings",
-                                button_text_style.clone(),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            ButtonBundle {
-                                style: button_style,
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
-                            MenuButtonAction::Quit,
-                        ))
-                        .with_children(|parent| {
-                            let icon = asset_server.load("textures/Game Icons/exitRight.png");
-                            parent.spawn(ImageBundle {
-                                style: button_icon_style,
-                                image: UiImage::new(icon),
-                                ..default()
-                            });
-                            parent.spawn(TextBundle::from_section("Quit", button_text_style));
-                        });
+                    }
                 });
         });
 }
 
-fn settings_menu_setup(mut commands: Commands) {
+// fn settings_menu_setup(mut commands: Commands) {
+//     let button_style = Style {
+//         width: Val::Px(200.0),
+//         height: Val::Px(65.0),
+//         margin: UiRect::all(Val::Px(20.0)),
+//         justify_content: JustifyContent::Center,
+//         align_items: AlignItems::Center,
+//         ..default()
+//     };
+
+//     let button_text_style = TextStyle {
+//         font_size: 40.0,
+//         color: TEXT_COLOR,
+//         ..default()
+//     };
+
+//     commands
+//         .spawn((
+//             NodeBundle {
+//                 style: Style {
+//                     width: Val::Percent(100.0),
+//                     height: Val::Percent(100.0),
+//                     align_items: AlignItems::Center,
+//                     justify_content: JustifyContent::Center,
+//                     ..default()
+//                 },
+//                 ..default()
+//             },
+//             OnSettingsMenuScreen,
+//         ))
+//         .with_children(|parent| {
+//             parent
+//                 .spawn(NodeBundle {
+//                     style: Style {
+//                         flex_direction: FlexDirection::Column,
+//                         align_items: AlignItems::Center,
+//                         ..default()
+//                     },
+//                     background_color: Color::CRIMSON.into(),
+//                     ..default()
+//                 })
+//                 .with_children(|parent| {
+//                     for (action, text) in [
+//                         (MenuButtonAction::SettingsMusic, "Sound"),
+//                         (MenuButtonAction::BackToMainMenu, "Back"),
+//                     ] {
+//                         parent
+//                             .spawn((
+//                                 ButtonBundle {
+//                                     style: button_style.clone(),
+//                                     background_color: NORMAL_BUTTON.into(),
+//                                     ..default()
+//                                 },
+//                                 action,
+//                             ))
+//                             .with_children(|parent| {
+//                                 parent.spawn(TextBundle::from_section(
+//                                     text,
+//                                     button_text_style.clone(),
+//                                 ));
+//                             });
+//                     }
+//                 });
+//         });
+// }
+
+fn settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
     let button_style = Style {
         width: Val::Px(200.0),
         height: Val::Px(65.0),
@@ -252,7 +289,6 @@ fn settings_menu_setup(mut commands: Commands) {
         align_items: AlignItems::Center,
         ..default()
     };
-
     let button_text_style = TextStyle {
         font_size: 40.0,
         color: TEXT_COLOR,
@@ -272,71 +308,6 @@ fn settings_menu_setup(mut commands: Commands) {
                 ..default()
             },
             OnSettingsMenuScreen,
-        ))
-        .with_children(|parent| {
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: Color::CRIMSON.into(),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    for (action, text) in [
-                        (MenuButtonAction::SettingsMusic, "Sound"),
-                        (MenuButtonAction::BackToMainMenu, "Back"),
-                    ] {
-                        parent
-                            .spawn((
-                                ButtonBundle {
-                                    style: button_style.clone(),
-                                    background_color: NORMAL_BUTTON.into(),
-                                    ..default()
-                                },
-                                action,
-                            ))
-                            .with_children(|parent| {
-                                parent.spawn(TextBundle::from_section(
-                                    text,
-                                    button_text_style.clone(),
-                                ));
-                            });
-                    }
-                });
-        });
-}
-
-fn sound_settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
-    let button_style = Style {
-        width: Val::Px(200.0),
-        height: Val::Px(65.0),
-        margin: UiRect::all(Val::Px(20.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-    let button_text_style = TextStyle {
-        font_size: 40.0,
-        color: TEXT_COLOR,
-        ..default()
-    };
-
-    commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
-                ..default()
-            },
-            OnSoundSettingsMenuScreen,
         ))
         .with_children(|parent| {
             parent
@@ -392,7 +363,7 @@ fn sound_settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
                                 }
                             }
                         });
-                    // Display the back button to return to the settings screen
+                    // Display the back button to return to the main menu screen
                     parent
                         .spawn((
                             ButtonBundle {
@@ -400,7 +371,7 @@ fn sound_settings_menu_setup(mut commands: Commands, sound_level: Res<Music>) {
                                 background_color: NORMAL_BUTTON.into(),
                                 ..default()
                             },
-                            MenuButtonAction::BackToSettings,
+                            MenuButtonAction::BackToMainMenu,
                         ))
                         .with_children(|parent| {
                             parent.spawn(TextBundle::from_section("Back", button_text_style));
@@ -426,14 +397,15 @@ fn menu_action(
                     game_state.set(GameState::Game);
                     menu_state.set(MenuState::Disabled);
                 }
+                MenuButtonAction::Credits => menu_state.set(MenuState::Credits),
                 MenuButtonAction::Settings => menu_state.set(MenuState::Settings),
-                MenuButtonAction::SettingsMusic => {
-                    menu_state.set(MenuState::SettingsMusic);
-                }
+                // MenuButtonAction::SettingsMusic => {
+                //     menu_state.set(MenuState::SettingsMusic);
+                // }
                 MenuButtonAction::BackToMainMenu => menu_state.set(MenuState::Main),
-                MenuButtonAction::BackToSettings => {
-                    menu_state.set(MenuState::Settings);
-                }
+                // MenuButtonAction::BackToSettings => {
+                //     menu_state.set(MenuState::Settings);
+                // }
             }
         }
     }
