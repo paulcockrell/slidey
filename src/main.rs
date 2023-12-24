@@ -36,12 +36,6 @@ enum GameState {
     GamePlay,
 }
 
-#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
-enum Music {
-    Off,
-    On,
-}
-
 #[derive(Resource, Default, Debug, Component, PartialEq, Eq, Clone, Copy)]
 enum Level {
     #[default]
@@ -95,7 +89,6 @@ impl Level {
 fn main() {
     App::new()
         .add_state::<GameState>()
-        .insert_resource(Music::On)
         .insert_resource(Level::One)
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
@@ -110,8 +103,6 @@ fn main() {
 // Generic system that takes a component as a parameter, and will despawn all entites with that
 // component
 fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    println!("Despawning screen {:?}", to_despawn);
-
     for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
