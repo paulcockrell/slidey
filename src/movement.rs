@@ -35,6 +35,15 @@ impl Moveable {
     }
 }
 
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum PlayerState {
+    #[default]
+    Idle,
+    Moving,
+    Teleport,
+    CollectPotion,
+}
+
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
@@ -54,6 +63,7 @@ impl Plugin for MovementPlugin {
 }
 
 fn movement_controlls(
+    mut player_state: ResMut<NextState<PlayerState>>,
     mut moveable_query: Query<(&mut Moveable, &mut Transform), Without<Teleporter>>,
     mut teleporter_query: Query<&mut Transform, With<Teleporter>>,
     input: Res<Input<KeyCode>>,
@@ -74,18 +84,22 @@ fn movement_controlls(
     if input.just_released(KeyCode::Up) {
         moveable.direction = Direction::Up;
         moveable.speed = PLAYER_SPEED;
+        player_state.set(PlayerState::Moving);
     }
     if input.just_released(KeyCode::Down) {
         moveable.direction = Direction::Down;
         moveable.speed = PLAYER_SPEED;
+        player_state.set(PlayerState::Moving);
     }
     if input.just_released(KeyCode::Left) {
         moveable.direction = Direction::Left;
         moveable.speed = PLAYER_SPEED;
+        player_state.set(PlayerState::Moving);
     }
     if input.just_released(KeyCode::Right) {
         moveable.direction = Direction::Right;
         moveable.speed = PLAYER_SPEED;
+        player_state.set(PlayerState::Moving);
     }
     if input.just_released(KeyCode::Space) {
         moveable.direction = Direction::Stopped;
@@ -95,6 +109,8 @@ fn movement_controlls(
 
         moveable_transform.translation = teleporter_translation;
         teleporter_transform.translation = moveable_translation;
+
+        player_state.set(PlayerState::Teleport);
     }
 }
 
@@ -121,6 +137,7 @@ fn update_position(mut player_query: Query<(&mut Transform, &Moveable)>, time: R
 fn check_potion(
     mut commands: Commands,
     mut player_query: Query<&mut Transform, (With<Moveable>, Without<Collectable>)>,
+    mut player_state: ResMut<NextState<PlayerState>>,
     mut game_state: ResMut<NextState<GameState>>,
     potion_query: Query<(Entity, &Transform), With<Collectable>>,
     level: ResMut<Level>,
@@ -140,6 +157,7 @@ fn check_potion(
 
         if hit {
             commands.entity(potion_entity).despawn_recursive();
+            player_state.set(PlayerState::CollectPotion);
         }
     }
 
@@ -151,6 +169,7 @@ fn check_potion(
 
 fn check_wall(
     mut player_query: Query<(&mut Transform, &mut Moveable), Without<TileCollider>>,
+    mut player_state: ResMut<NextState<PlayerState>>,
     wall_query: Query<&Transform, With<TileCollider>>,
 ) {
     let Ok((mut player_transform, mut player_moveable)) = player_query.get_single_mut() else {
@@ -173,6 +192,7 @@ fn check_wall(
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
                 player_transform.translation.x = wall_transform.translation.x + TILE_SIZE;
+                player_state.set(PlayerState::Idle);
             };
 
             // Moving right, collided with left side of wall
@@ -184,6 +204,7 @@ fn check_wall(
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
                 player_transform.translation.x = wall_transform.translation.x - TILE_SIZE;
+                player_state.set(PlayerState::Idle);
             };
 
             // Moving up, collided with bottom side of wall
@@ -195,6 +216,7 @@ fn check_wall(
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
                 player_transform.translation.y = wall_transform.translation.y - TILE_SIZE;
+                player_state.set(PlayerState::Idle);
             };
 
             // Moving down, collided with top side of wall
@@ -206,6 +228,7 @@ fn check_wall(
                 // Ensure we don't move in to the wall, as the collision may occur
                 // after we have moved 'into' it (as translation is a vec3 of f32s)
                 player_transform.translation.y = wall_transform.translation.y + TILE_SIZE;
+                player_state.set(PlayerState::Idle);
             };
         }
     }

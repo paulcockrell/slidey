@@ -23,7 +23,7 @@ use audio::AudioPlugin;
 use camera::CameraPlugin;
 use game::GamePlugin;
 use menu::MenuPlugin;
-use movement::MovementPlugin;
+use movement::{MovementPlugin, PlayerState};
 use splash::SplashPlugin;
 use view_port::ViewPortPlugin;
 
@@ -89,6 +89,7 @@ impl Level {
 fn main() {
     App::new()
         .add_state::<GameState>()
+        .add_state::<PlayerState>()
         .insert_resource(Level::One)
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)

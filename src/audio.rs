@@ -1,11 +1,17 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
+use crate::movement::PlayerState;
+
 pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup).add_systems(Update, pause);
+        app.add_systems(Startup, setup)
+            .add_systems(Update, pause)
+            .add_systems(OnEnter(PlayerState::Teleport), play_teleport_sfx)
+            .add_systems(OnEnter(PlayerState::Idle), play_hit_wall_sfx)
+            .add_systems(OnEnter(PlayerState::CollectPotion), play_collect_potion_sfx);
     }
 }
 
@@ -30,5 +36,47 @@ fn pause(keyboard_input: Res<Input<KeyCode>>, music_controller: Query<&AudioSink
     }
 }
 
+fn play_teleport_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("teleport.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Once,
+                ..default()
+            },
+        },
+        Sfx,
+    ));
+}
+
+fn play_collect_potion_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("potion-collect.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Once,
+                ..default()
+            },
+        },
+        Sfx,
+    ));
+}
+
+fn play_hit_wall_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("hit-wall.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Once,
+                ..default()
+            },
+        },
+        Sfx,
+    ));
+}
+
 #[derive(Component, Debug)]
 pub struct Music;
+
+#[derive(Component, Debug)]
+pub struct Sfx;
