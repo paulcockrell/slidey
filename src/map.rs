@@ -99,7 +99,13 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
         }
 
         commands
-            .spawn(TileMap)
+            .spawn((
+                TileMap,
+                SceneBundle {
+                    visibility: Visibility::Visible,
+                    ..default()
+                },
+            ))
             .insert(Name::new("TileMap"))
             .insert(Transform::default())
             .insert(GlobalTransform::default())
@@ -173,7 +179,13 @@ pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<L
             }
         }
         commands
-            .spawn(AssetMap)
+            .spawn((
+                AssetMap,
+                SceneBundle {
+                    visibility: Visibility::Visible,
+                    ..default()
+                },
+            ))
             .insert(Name::new("AssetMap"))
             .insert(Transform::default())
             .insert(GlobalTransform::default())
