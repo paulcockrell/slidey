@@ -2,6 +2,7 @@ use bevy::prelude::*;
 // use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod ascii;
+mod audio;
 mod camera;
 mod game;
 mod map;
@@ -18,6 +19,7 @@ mod prelude {
 pub const TEXT_COLOR: Color = Color::rgb(0.9, 0.8, 0.7);
 
 use ascii::AsciiPlugin;
+use audio::AudioPlugin;
 use camera::CameraPlugin;
 use game::GamePlugin;
 use menu::MenuPlugin;
@@ -100,6 +102,7 @@ fn main() {
         .add_plugins(AsciiPlugin)
         .add_plugins((SplashPlugin, MenuPlugin, GamePlugin))
         .add_plugins(MovementPlugin)
+        .add_plugins(AudioPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
