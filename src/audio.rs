@@ -10,7 +10,6 @@ impl Plugin for AudioPlugin {
         app.add_systems(Startup, setup)
             .add_systems(Update, pause)
             .add_systems(OnEnter(PlayerState::Teleport), play_teleport_sfx)
-            .add_systems(OnEnter(PlayerState::Idle), play_hit_wall_sfx)
             .add_systems(OnEnter(PlayerState::CollectPotion), play_collect_potion_sfx);
     }
 }
@@ -53,19 +52,6 @@ fn play_collect_potion_sfx(asset_server: Res<AssetServer>, mut commands: Command
     commands.spawn((
         AudioBundle {
             source: asset_server.load("potion-collect.ogg"),
-            settings: PlaybackSettings {
-                mode: PlaybackMode::Once,
-                ..default()
-            },
-        },
-        Sfx,
-    ));
-}
-
-fn play_hit_wall_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
-    commands.spawn((
-        AudioBundle {
-            source: asset_server.load("hit-wall.ogg"),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Once,
                 ..default()
