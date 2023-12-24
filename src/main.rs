@@ -49,6 +49,11 @@ enum Level {
     Three,
     Four,
     Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Ten,
 }
 
 impl Level {
