@@ -37,61 +37,16 @@ enum GameState {
     GameCompleted,
 }
 
-#[derive(Resource, Default, Debug, Component, PartialEq, Eq, Clone, Copy)]
-enum Level {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
-    #[default]
-    Ten,
-}
-
-impl Level {
-    pub fn to_number(self) -> u8 {
-        match self {
-            Level::Zero => 0,
-            Level::One => 1,
-            Level::Two => 2,
-            Level::Three => 3,
-            Level::Four => 4,
-            Level::Five => 5,
-            Level::Six => 6,
-            Level::Seven => 7,
-            Level::Eight => 8,
-            Level::Nine => 9,
-            Level::Ten => 10,
-        }
-    }
-
-    pub fn next(self) -> Self {
-        match self {
-            Level::Zero => Level::One,
-            Level::One => Level::Two,
-            Level::Two => Level::Three,
-            Level::Three => Level::Four,
-            Level::Four => Level::Five,
-            Level::Five => Level::Six,
-            Level::Six => Level::Seven,
-            Level::Seven => Level::Eight,
-            Level::Eight => Level::Nine,
-            Level::Nine => Level::Ten,
-            Level::Ten => Level::Zero,
-        }
-    }
+#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
+pub struct Level {
+    number: u8,
 }
 
 fn main() {
     App::new()
         .add_state::<GameState>()
         .add_state::<PlayerState>()
-        .insert_resource(Level::Nine)
+        .insert_resource(Level { number: 1 })
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)

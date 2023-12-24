@@ -45,11 +45,11 @@ impl Map {
 
 // Builds the non-interactive map, i.e floor and walls
 pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
-    println!("Spawning map for level {}", level.to_number());
+    println!("Spawning map for level {}", level.number);
 
     let mut map = Map::new(NUM_TILES);
     let mut tiles = Vec::new();
-    let level_path = format!("assets/level{}.txt", level.to_number());
+    let level_path = format!("assets/level{}.txt", level.number);
 
     if let Ok(lines) = read_lines(level_path) {
         // Build static
@@ -117,10 +117,10 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
 
 // Builds the assets, i.e Player and Potions
 pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
-    println!("Spawning assets for level {:?}", level.to_number());
+    println!("Spawning assets for level {}", level.number);
 
     let mut map = Map::new(NUM_TILES);
-    let level_path = format!("assets/level{}.txt", level.to_number());
+    let level_path = format!("assets/level{}.txt", level.number);
     let mut sprites = Vec::new();
 
     if let Ok(lines) = read_lines(level_path) {

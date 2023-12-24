@@ -39,15 +39,10 @@ impl Plugin for GamePlugin {
     }
 }
 
-fn game_levels_next(
-    mut commands: Commands,
-    level: Res<Level>,
-    mut game_state: ResMut<NextState<GameState>>,
-) {
-    let next_level = level.next();
-    if next_level.to_number() <= 10 {
-        println!("Loading level {:?}", next_level);
-        commands.insert_resource(next_level);
+fn game_levels_next(mut level: ResMut<Level>, mut game_state: ResMut<NextState<GameState>>) {
+    level.number += 1;
+    if level.number <= 10 {
+        println!("Loading level {:?}", level.number);
     } else {
         game_state.set(GameState::GameCompleted);
     }
@@ -59,12 +54,12 @@ fn game(keyboard_input: Res<Input<KeyCode>>, mut game_state: ResMut<NextState<Ga
     }
 }
 
-fn game_reset(mut commands: Commands) {
-    commands.insert_resource(Level::One);
+fn game_reset(mut level: ResMut<Level>) {
+    level.number = 1;
 }
 
 fn game_setup_complete(mut commands: Commands, level: Res<Level>) {
-    let level_text = format!("Level {}", level.to_number());
+    let level_text = format!("Level {}", level.number);
 
     commands
         .spawn((
