@@ -1,17 +1,32 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
-use crate::asset_loader::AudioAssets;
 use crate::movement::PlayerState;
 
 pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
+        app.init_resource::<AudioAssets>()
+            .add_systems(Startup, (load_audio_assets, setup).chain())
             .add_systems(Update, pause)
             .add_systems(OnEnter(PlayerState::Teleport), play_teleport_sfx)
             .add_systems(OnEnter(PlayerState::CollectPotion), play_collect_potion_sfx);
+    }
+}
+
+#[derive(Resource, Debug, Default)]
+pub struct AudioAssets {
+    pub music: Handle<AudioSource>,
+    pub teleport: Handle<AudioSource>,
+    pub potion_collect: Handle<AudioSource>,
+}
+
+fn load_audio_assets(mut audio_assets: ResMut<AudioAssets>, asset_server: Res<AssetServer>) {
+    *audio_assets = AudioAssets {
+        music: asset_server.load("dungeon-level.ogg"),
+        teleport: asset_server.load("teleport.ogg"),
+        potion_collect: asset_server.load("potion-collect.ogg"),
     }
 }
 
