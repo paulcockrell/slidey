@@ -58,7 +58,8 @@ impl Plugin for MovementPlugin {
             )
                 .chain()
                 .run_if(in_state(GameState::GamePlay)),
-        );
+        )
+        .add_systems(OnEnter(PlayerState::Teleport), player_set_idle);
     }
 }
 
@@ -232,4 +233,8 @@ fn check_wall(
             };
         }
     }
+}
+
+fn player_set_idle(mut player_state: ResMut<NextState<PlayerState>>) {
+    player_state.set(PlayerState::Idle);
 }

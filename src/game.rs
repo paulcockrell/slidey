@@ -33,16 +33,23 @@ impl Plugin for GamePlugin {
         .add_systems(Update, game.run_if(in_state(GameState::GamePlay)))
         .add_systems(OnExit(GameState::GamePlay), despawn_screen::<TileMap>)
         .add_systems(OnExit(GameState::GamePlay), despawn_screen::<AssetMap>)
-        .add_systems(OnEnter(GameState::GamePlay), game_setup)
+        .add_systems(OnExit(GameState::GamePlay), game_levels_next)
+        .add_systems(OnEnter(GameState::GameCompleted), game_levels_completed)
         .add_systems(OnEnter(GameState::Menu), game_reset);
     }
 }
 
-fn game_setup(mut commands: Commands, level: Res<Level>) {
+fn game_levels_next(
+    mut commands: Commands,
+    level: Res<Level>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
     let next_level = level.next();
-    if next_level.to_number() < 10 {
+    if next_level.to_number() <= 10 {
         println!("Loading level {:?}", next_level);
         commands.insert_resource(next_level);
+    } else {
+        game_state.set(GameState::GameCompleted);
     }
 }
 
@@ -91,6 +98,69 @@ fn game_setup_complete(mut commands: Commands, level: Res<Level>) {
                             level_text,
                             TextStyle {
                                 font_size: 80.0,
+                                color: Color::WHITE,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        }),
+                    );
+                });
+        });
+
+    // Insert the timer as a resource
+    commands.insert_resource(LevelCardTimer(Timer::from_seconds(3.0, TimerMode::Once)));
+}
+
+fn game_levels_completed(mut commands: Commands) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Vw(100.0),
+                    height: Val::Vh(100.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                ..default()
+            },
+            OnLevelCard,
+        ))
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::CRIMSON),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // Display the game name
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "You have completed the game!",
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        }),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Press Q to return to the main menu",
+                            TextStyle {
+                                font_size: 20.0,
                                 color: Color::WHITE,
                                 ..default()
                             },

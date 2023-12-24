@@ -2,6 +2,7 @@ use bevy::prelude::*;
 // use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod ascii;
+mod asset_loader;
 mod audio;
 mod camera;
 mod game;
@@ -19,6 +20,7 @@ mod prelude {
 pub const TEXT_COLOR: Color = Color::rgb(0.9, 0.8, 0.7);
 
 use ascii::AsciiPlugin;
+use asset_loader::AssetLoaderPlugin;
 use audio::AudioPlugin;
 use camera::CameraPlugin;
 use game::GamePlugin;
@@ -34,11 +36,11 @@ enum GameState {
     Menu,
     GameSetup,
     GamePlay,
+    GameCompleted,
 }
 
 #[derive(Resource, Default, Debug, Component, PartialEq, Eq, Clone, Copy)]
 enum Level {
-    #[default]
     Zero,
     One,
     Two,
@@ -49,6 +51,7 @@ enum Level {
     Seven,
     Eight,
     Nine,
+    #[default]
     Ten,
 }
 
@@ -90,13 +93,14 @@ fn main() {
     App::new()
         .add_state::<GameState>()
         .add_state::<PlayerState>()
-        .insert_resource(Level::One)
+        .insert_resource(Level::Nine)
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)
         .add_plugins((SplashPlugin, MenuPlugin, GamePlugin))
         .add_plugins(MovementPlugin)
         .add_plugins(AudioPlugin)
+        .add_plugins(AssetLoaderPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .run();
 }

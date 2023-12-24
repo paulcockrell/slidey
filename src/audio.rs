@@ -1,6 +1,7 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
+use crate::asset_loader::AudioAssets;
 use crate::movement::PlayerState;
 
 pub struct AudioPlugin;
@@ -14,10 +15,18 @@ impl Plugin for AudioPlugin {
     }
 }
 
-fn setup(asset_server: Res<AssetServer>, mut commands: Commands) {
+fn pause(keyboard_input: Res<Input<KeyCode>>, music_controller: Query<&AudioSink, With<Music>>) {
+    if keyboard_input.just_pressed(KeyCode::M) {
+        if let Ok(sink) = music_controller.get_single() {
+            sink.toggle();
+        }
+    }
+}
+
+fn setup(audio_assets: Res<AudioAssets>, mut commands: Commands) {
     commands.spawn((
         AudioBundle {
-            source: asset_server.load("dungeon-level.ogg"),
+            source: audio_assets.music.clone(),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Loop,
                 ..default()
@@ -27,18 +36,10 @@ fn setup(asset_server: Res<AssetServer>, mut commands: Commands) {
     ));
 }
 
-fn pause(keyboard_input: Res<Input<KeyCode>>, music_controller: Query<&AudioSink, With<Music>>) {
-    if keyboard_input.just_pressed(KeyCode::M) {
-        if let Ok(sink) = music_controller.get_single() {
-            sink.toggle();
-        }
-    }
-}
-
-fn play_teleport_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
+fn play_teleport_sfx(audio_assets: Res<AudioAssets>, mut commands: Commands) {
     commands.spawn((
         AudioBundle {
-            source: asset_server.load("teleport.ogg"),
+            source: audio_assets.teleport.clone(),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Once,
                 ..default()
@@ -48,10 +49,10 @@ fn play_teleport_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
     ));
 }
 
-fn play_collect_potion_sfx(asset_server: Res<AssetServer>, mut commands: Commands) {
+fn play_collect_potion_sfx(audio_assets: Res<AudioAssets>, mut commands: Commands) {
     commands.spawn((
         AudioBundle {
-            source: asset_server.load("potion-collect.ogg"),
+            source: audio_assets.potion_collect.clone(),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Once,
                 ..default()
