@@ -16,7 +16,7 @@ impl Plugin for HudPlugin {
 }
 
 fn spawn_hud(mut commands: Commands, level: Res<Level>) {
-    let level_text = format!("Level {}", level.number);
+    let level_text = format!("Level {} of 10", level.number);
 
     commands
         .spawn((
