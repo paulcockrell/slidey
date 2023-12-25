@@ -114,6 +114,7 @@ fn main_menu_setup(mut commands: Commands) {
                     style: Style {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
                         ..default()
                     },
                     ..default()
@@ -132,7 +133,8 @@ fn main_menu_setup(mut commands: Commands) {
                         .with_style(Style {
                             margin: UiRect::all(Val::Px(50.0)),
                             ..default()
-                        }),
+                        })
+                        .with_text_alignment(TextAlignment::Center),
                     );
 
                     // Display three buttons for each action available from the main menu:
