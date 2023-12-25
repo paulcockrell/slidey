@@ -20,7 +20,7 @@ cargo install wasm-server-runner
 
 ### Run
 ```
-cargo run --target wasm32-unknown-unknown
+cargo serve # this is an alias set in `.cargo/config.toml` that runs: `cargo run --target wasm32-unknown-unknown`
 ```
 
 ### Native

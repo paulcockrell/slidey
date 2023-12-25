@@ -71,6 +71,7 @@ fn game_setup_complete(mut commands: Commands, level: Res<Level>) {
                     justify_content: JustifyContent::Center,
                     ..default()
                 },
+                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.8)),
                 ..default()
             },
             OnLevelCard,
