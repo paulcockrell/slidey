@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{despawn_screen, GameState};
+use crate::{despawn_screen, GameState, Level};
 
 #[derive(Component, Debug)]
 struct OnHud;
@@ -15,7 +15,9 @@ impl Plugin for HudPlugin {
     }
 }
 
-fn spawn_hud(mut commands: Commands) {
+fn spawn_hud(mut commands: Commands, level: Res<Level>) {
+    let level_text = format!("Level {}", level.number);
+
     commands
         .spawn((
             NodeBundle {
@@ -34,15 +36,30 @@ fn spawn_hud(mut commands: Commands) {
                     style: Style {
                         height: Val::Percent(100.0),
                         width: Val::Vw(100.0),
-                        flex_direction: FlexDirection::Row,
-                        align_items: AlignItems::End,
-                        justify_content: JustifyContent::Center,
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceBetween,
                         ..default()
                     },
                     ..default()
                 })
                 .with_children(|parent| {
-                    // Display the game name
+                    // Display level info
+                    parent.spawn(
+                        TextBundle::from_section(
+                            level_text,
+                            TextStyle {
+                                font_size: 20.0,
+                                color: Color::WHITE,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(10.0)),
+                            ..default()
+                        }),
+                    );
+                    // Display controlls
                     parent.spawn(
                         TextBundle::from_section(
                             "Move: ARROW KEYS, Teleport: SPACEBAR, Music toggle: M, Quit: Q",
