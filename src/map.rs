@@ -79,7 +79,7 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
                     &ascii,
                     sprite_idx,
                     Vec3::new(
-                        -80.0 + (x as f32 * TILE_SIZE),
+                        -90.0 + (x as f32 * TILE_SIZE),
                         65.0 + -(y as f32 * TILE_SIZE),
                         z_idx,
                     ),
@@ -153,7 +153,7 @@ pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<L
                         &ascii,
                         sprite_idx,
                         Vec3::new(
-                            -80.0 + (x as f32 * TILE_SIZE),
+                            -90.0 + (x as f32 * TILE_SIZE),
                             65.0 + -(y as f32 * TILE_SIZE),
                             z_idx,
                         ),

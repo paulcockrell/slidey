@@ -5,6 +5,7 @@ mod ascii;
 mod audio;
 mod camera;
 mod game;
+mod hud;
 mod map;
 mod menu;
 mod movement;
@@ -22,6 +23,7 @@ use ascii::AsciiPlugin;
 use audio::AudioPlugin;
 use camera::CameraPlugin;
 use game::GamePlugin;
+use hud::HudPlugin;
 use menu::MenuPlugin;
 use movement::{MovementPlugin, PlayerState};
 use splash::SplashPlugin;
@@ -42,17 +44,30 @@ pub struct Level {
     number: u8,
 }
 
+impl Level {
+    pub fn new() -> Self {
+        Self { number: 9 }
+    }
+}
+
+impl Default for Level {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn main() {
     App::new()
         .add_state::<GameState>()
         .add_state::<PlayerState>()
-        .insert_resource(Level { number: 1 })
+        .insert_resource(Level::default())
         .add_plugins(ViewPortPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsciiPlugin)
         .add_plugins((SplashPlugin, MenuPlugin, GamePlugin))
         .add_plugins(MovementPlugin)
         .add_plugins(AudioPlugin)
+        .add_plugins(HudPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
