@@ -203,10 +203,10 @@ fn credits_screen_setup(mut commands: Commands) {
                     style: Style {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
-                        width: Val::Percent(100.0),
+                        height: Val::Vh(100.0),
+                        width: Val::Vw(100.0),
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -220,14 +220,14 @@ fn credits_screen_setup(mut commands: Commands) {
                             },
                         )
                         .with_style(Style {
-                            margin: UiRect::all(Val::Px(50.0)),
+                            margin: UiRect::all(Val::Px(10.0)),
                             ..default()
                         })
                         .with_text_alignment(TextAlignment::Center),
                     );
                     parent.spawn(
                         TextBundle::from_section(
-                            "Programming: Bit Slayer",
+                            "Programming: Paul Cockrell",
                             TextStyle {
                                 font_size: 20.0,
                                 color: TEXT_COLOR,
@@ -235,14 +235,14 @@ fn credits_screen_setup(mut commands: Commands) {
                             },
                         )
                         .with_style(Style {
-                            margin: UiRect::all(Val::Px(50.0)),
+                            margin: UiRect::all(Val::Px(10.0)),
                             ..default()
                         })
                         .with_text_alignment(TextAlignment::Left),
                     );
                     parent.spawn(
                         TextBundle::from_section(
-                            "Graphics: Tiny Dungeon (1.0) Created/distributed by Kenney (www.kenney.nl)",
+                            "Graphics: Kenney (www.kenney.nl)",
                             TextStyle {
                                 font_size: 20.0,
                                 color: TEXT_COLOR,
@@ -250,7 +250,52 @@ fn credits_screen_setup(mut commands: Commands) {
                             },
                         )
                         .with_style(Style {
-                            margin: UiRect::all(Val::Px(50.0)),
+                            margin: UiRect::all(Val::Px(10.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Left),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Music: Unknown",
+                            TextStyle {
+                                font_size: 20.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(10.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Left),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Logo font: textcraft.net",
+                            TextStyle {
+                                font_size: 20.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(10.0)),
+                            ..default()
+                        })
+                        .with_text_alignment(TextAlignment::Left),
+                    );
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Source code: github.com/paulcockrell/slidey",
+                            TextStyle {
+                                font_size: 20.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(10.0)),
                             ..default()
                         })
                         .with_text_alignment(TextAlignment::Left),
