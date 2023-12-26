@@ -6,6 +6,7 @@ mod audio;
 mod camera;
 mod game;
 mod hud;
+mod levels;
 mod map;
 mod menu;
 mod movement;
@@ -25,6 +26,7 @@ use audio::AudioPlugin;
 use camera::CameraPlugin;
 use game::GamePlugin;
 use hud::HudPlugin;
+use levels::LevelPlugin;
 use menu::MenuPlugin;
 use movement::{MovementPlugin, PlayerState};
 use splash::SplashPlugin;
@@ -69,6 +71,7 @@ fn main() {
         .add_plugins(MovementPlugin)
         .add_plugins(AudioPlugin)
         .add_plugins(HudPlugin)
+        .add_plugins(LevelPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
