@@ -6,8 +6,6 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
-
 #[derive(Component, Debug)]
 pub struct TileCollider;
 
@@ -47,7 +45,7 @@ impl Map {
 pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
     println!("Spawning map for level {}", level.number);
 
-    let mut map = Map::new(NUM_TILES);
+    let mut map = Map::new(MAP_NUM_TILES as usize);
     let mut tiles = Vec::new();
     let level_path = format!("assets/level{}.txt", level.number);
 
@@ -65,8 +63,8 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
             }
         }
 
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
+        for y in 0..MAP_NUM_TILES_HIGH {
+            for x in 0..MAP_NUM_TILES_WIDE {
                 let index = map_idx(x, y);
                 let tile_type = map.tiles[index];
                 let (sprite_idx, z_idx) = match tile_type {
@@ -119,7 +117,7 @@ pub fn spawn_map(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Leve
 pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<Level>) {
     println!("Spawning assets for level {}", level.number);
 
-    let mut map = Map::new(NUM_TILES);
+    let mut map = Map::new(MAP_NUM_TILES as usize);
     let level_path = format!("assets/level{}.txt", level.number);
     let mut sprites = Vec::new();
 
@@ -138,8 +136,8 @@ pub fn spawn_assets(mut commands: Commands, ascii: Res<AsciiSheet>, level: Res<L
             }
         }
 
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
+        for y in 0..MAP_NUM_TILES_HIGH {
+            for x in 0..MAP_NUM_TILES_WIDE {
                 let index = map_idx(x, y);
                 let tile_type = map.tiles[index];
                 if let Some((sprite_idx, z_idx)) = match tile_type {
@@ -204,5 +202,5 @@ where
 }
 
 pub fn map_idx(x: i32, y: i32) -> usize {
-    ((y * SCREEN_WIDTH) + x) as usize
+    ((y * MAP_NUM_TILES_WIDE) + x) as usize
 }

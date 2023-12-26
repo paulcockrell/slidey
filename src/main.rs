@@ -13,8 +13,9 @@ mod splash;
 mod view_port;
 
 mod prelude {
-    pub const SCREEN_WIDTH: i32 = 12;
-    pub const SCREEN_HEIGHT: i32 = 9;
+    pub const MAP_NUM_TILES_WIDE: i32 = 12;
+    pub const MAP_NUM_TILES_HIGH: i32 = 9;
+    pub const MAP_NUM_TILES: i32 = MAP_NUM_TILES_WIDE * MAP_NUM_TILES_HIGH;
 }
 
 pub const TEXT_COLOR: Color = Color::rgb(0.9, 0.8, 0.7);
