@@ -1,5 +1,7 @@
 use bevy::{app::AppExit, prelude::*};
 
+use crate::button::{button_style, button_system, button_text_style, NORMAL_BUTTON};
+
 use super::{despawn_screen, GameState, TEXT_COLOR};
 
 pub struct MenuPlugin;
@@ -39,37 +41,12 @@ struct OnCreditsScreen;
 #[derive(Component)]
 struct OnGameScreen;
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-const HOVERED_PRESSED_BUTTON: Color = Color::rgb(0.25, 0.65, 0.25);
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
-
 #[derive(Component)]
-struct SelectedOption;
-
-#[derive(Component)]
-enum MenuButtonAction {
+pub enum MenuButtonAction {
     Play,
     Credits,
     BackToMainMenu,
     Quit,
-}
-
-// This system handles changing all buttons color based on mouse interaction
-fn button_system(
-    mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
-        (Changed<Interaction>, With<Button>),
-    >,
-) {
-    for (interaction, mut color, selected) in &mut interaction_query {
-        *color = match (*interaction, selected) {
-            (Interaction::Pressed, _) | (Interaction::None, Some(_)) => PRESSED_BUTTON.into(),
-            (Interaction::Hovered, Some(_)) => HOVERED_PRESSED_BUTTON.into(),
-            (Interaction::Hovered, None) => HOVERED_BUTTON.into(),
-            (Interaction::None, None) => NORMAL_BUTTON.into(),
-        }
-    }
 }
 
 fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
@@ -77,23 +54,6 @@ fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
 }
 
 fn main_menu_setup(mut commands: Commands) {
-    // Common style for all buttons
-    let button_style = Style {
-        width: Val::Px(250.0),
-        height: Val::Px(65.0),
-        margin: UiRect::all(Val::Px(10.0)),
-        padding: UiRect::all(Val::Px(10.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-
-    let button_text_style = TextStyle {
-        font_size: 20.0,
-        color: TEXT_COLOR,
-        ..default()
-    };
-
     commands
         .spawn((
             NodeBundle {
@@ -150,17 +110,14 @@ fn main_menu_setup(mut commands: Commands) {
                         parent
                             .spawn((
                                 ButtonBundle {
-                                    style: button_style.clone(),
+                                    style: button_style(),
                                     background_color: NORMAL_BUTTON.into(),
                                     ..default()
                                 },
                                 action,
                             ))
                             .with_children(|parent| {
-                                parent.spawn(TextBundle::from_section(
-                                    text,
-                                    button_text_style.clone(),
-                                ));
+                                parent.spawn(TextBundle::from_section(text, button_text_style()));
                             });
                     }
                 });

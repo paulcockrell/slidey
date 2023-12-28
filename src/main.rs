@@ -3,6 +3,7 @@ use bevy::prelude::*;
 
 mod ascii;
 mod audio;
+mod button;
 mod camera;
 mod game;
 mod hud;

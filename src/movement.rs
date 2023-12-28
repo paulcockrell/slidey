@@ -163,8 +163,13 @@ fn check_potion(
     }
 
     if potion_query.is_empty() {
-        println!("Level {} complete!", level.number);
-        game_state.set(GameState::GameSetup);
+        if level.number == 10 {
+            println!("Game completed!");
+            game_state.set(GameState::GameCompleted);
+        } else {
+            println!("Level {} complete!", level.number);
+            game_state.set(GameState::GameSetup);
+        }
     }
 }
 

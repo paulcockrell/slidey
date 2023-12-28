@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
+    button::{button_style, button_system, button_text_style, NORMAL_BUTTON},
     map::{spawn_assets, spawn_map, AssetMap, TileMap},
+    menu::MenuButtonAction,
     Level,
 };
 
@@ -9,6 +11,9 @@ use super::{despawn_screen, GameState};
 
 #[derive(Component, Debug)]
 pub struct OnLevelCard;
+
+#[derive(Component, Debug)]
+pub struct OnGameCompleted;
 
 // New type to use as a timer for the level card as a resource
 #[derive(Resource, Deref, DerefMut)]
@@ -31,21 +36,30 @@ impl Plugin for GamePlugin {
         .add_systems(Update, countdown.run_if(in_state(GameState::GameSetup)))
         .add_systems(OnExit(GameState::GameSetup), despawn_screen::<OnLevelCard>)
         .add_systems(Update, game.run_if(in_state(GameState::GamePlay)))
-        .add_systems(OnExit(GameState::GamePlay), despawn_screen::<TileMap>)
-        .add_systems(OnExit(GameState::GamePlay), despawn_screen::<AssetMap>)
-        .add_systems(OnExit(GameState::GamePlay), game_levels_next)
+        .add_systems(
+            OnExit(GameState::GamePlay),
+            (
+                despawn_screen::<TileMap>,
+                despawn_screen::<AssetMap>,
+                game_levels_next,
+            ),
+        )
         .add_systems(OnEnter(GameState::GameCompleted), game_levels_completed)
+        .add_systems(
+            Update,
+            (menu_action, button_system).run_if(in_state(GameState::GameCompleted)),
+        )
+        .add_systems(
+            OnExit(GameState::GameCompleted),
+            despawn_screen::<OnGameCompleted>,
+        )
         .add_systems(OnEnter(GameState::Menu), game_reset);
     }
 }
 
-fn game_levels_next(mut level: ResMut<Level>, mut game_state: ResMut<NextState<GameState>>) {
+fn game_levels_next(mut level: ResMut<Level>) {
     level.number += 1;
-    if level.number <= 10 {
-        println!("Loading level {:?}", level.number);
-    } else {
-        game_state.set(GameState::GameCompleted);
-    }
+    println!("Loading level {:?}", level.number);
 }
 
 fn game(keyboard_input: Res<Input<KeyCode>>, mut game_state: ResMut<NextState<GameState>>) {
@@ -138,7 +152,7 @@ fn game_levels_completed(mut commands: Commands) {
                 },
                 ..default()
             },
-            OnLevelCard,
+            OnGameCompleted,
         ))
         .with_children(|parent| {
             parent
@@ -148,7 +162,6 @@ fn game_levels_completed(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::CRIMSON),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -167,25 +180,23 @@ fn game_levels_completed(mut commands: Commands) {
                             ..default()
                         }),
                     );
-                    parent.spawn(
-                        TextBundle::from_section(
-                            "Press Q to return to the main menu",
-                            TextStyle {
-                                font_size: 20.0,
-                                color: Color::WHITE,
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: button_style(),
+                                background_color: NORMAL_BUTTON.into(),
                                 ..default()
                             },
-                        )
-                        .with_style(Style {
-                            margin: UiRect::all(Val::Px(50.0)),
-                            ..default()
-                        }),
-                    );
+                            MenuButtonAction::BackToMainMenu,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Back to menu",
+                                button_text_style(),
+                            ));
+                        });
                 });
         });
-
-    // Insert the timer as a resource
-    commands.insert_resource(LevelCardTimer(Timer::from_seconds(3.0, TimerMode::Once)));
 }
 
 // Tick the timer, and change state when finished
@@ -196,5 +207,16 @@ fn countdown(
 ) {
     if timer.tick(time.delta()).finished() {
         game_state.set(GameState::GamePlay);
+    }
+}
+
+fn menu_action(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<Button>)>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    for interaction in &interaction_query {
+        if *interaction == Interaction::Pressed {
+            game_state.set(GameState::Menu);
+        }
     }
 }
