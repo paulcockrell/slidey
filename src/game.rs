@@ -62,9 +62,17 @@ fn game_levels_next(mut level: ResMut<Level>) {
     println!("Loading level {:?}", level.number);
 }
 
-fn game(keyboard_input: Res<Input<KeyCode>>, mut game_state: ResMut<NextState<GameState>>) {
+fn game(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut game_state: ResMut<NextState<GameState>>,
+    mut level: ResMut<Level>,
+) {
     if keyboard_input.just_pressed(KeyCode::Q) || keyboard_input.just_pressed(KeyCode::Escape) {
         game_state.set(GameState::Menu);
+    }
+    if keyboard_input.just_pressed(KeyCode::R) {
+        level.number -= 1;
+        game_state.set(GameState::GameSetup);
     }
 }
 

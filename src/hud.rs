@@ -62,7 +62,7 @@ fn spawn_hud(mut commands: Commands, level: Res<Level>) {
                     // Display controlls
                     parent.spawn(
                         TextBundle::from_section(
-                            "Move: ARROW KEYS, Teleport: SPACEBAR, Music toggle: M, Quit: Q",
+                            "Move: ARROW KEYS, Teleport: SPACE, Music: M, Reset: R, Quit: Q",
                             TextStyle {
                                 font_size: 20.0,
                                 color: Color::WHITE,
